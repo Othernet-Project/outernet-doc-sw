@@ -9,12 +9,18 @@ Each subdirectory in this repository represents a software components.
 
 The naming convention for all documents is:
 
-    component_name-[subcomponent_name-]status.mkd
+    component_name-[subcomponent_name-]status[-version].mkd
 
 The component name is a lower-cased version of the name of the directory in
 which the document is located. If the document describes only one part of the
 component, it may include the subcomponent name in the file name. The status is
 an accronym of the document status.
+
+Documents with version number must be suffixed by the version number.
+
+## Document format
+
+All documents must be in Markdown format and must be single-page.
 
 ## Document status codes
 
@@ -24,6 +30,30 @@ The document status codes are as follows:
  - FCR - final community review
  - FDR - final draft waiting for final approval
  - SPC - accepted specification
+
+### ECR - early community review
+
+This document is incomplete, early, draft that is presented to the community
+for early discussions and brainstorming. All sections of the document are open
+to discussion.
+
+### FCR - final community review
+
+This document is a complete draft which is presented to the community on FYI
+basis. Some sections of the draft may not be open to discussion.
+
+### FDR - final draft
+
+This draft is no longer open to suggestions. It is under technical review and
+waiting for final approval by the project members. Documents must have a
+version number before they can be declared FDR and the version number must not
+be in use by a previous SPC document.
+
+### SPC - accepted specification
+
+This version of the document is accepted by the project staff and may not be
+modified. Any changes require a new version to be drafted. Documents must have
+a version number before they can be declared SPC.
 
 ## License
 
