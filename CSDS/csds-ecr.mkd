@@ -1,4 +1,4 @@
-# Outernet Content Selection and Discovery System (CSDS) RCR
+# [ECR] Outernet Content Selection and Discovery System (CSDS)
 
 ## About this document
 
