@@ -1,18 +1,22 @@
-# Status
+# Outernet Content Selection and Discovery System (CSDS) RCR
+
+## About this document
+
+### Status
 
 Early community review
 
-# Authors
+### Authors
 
  - Branko Vukelic (Monwara Digital Products) <branko@brankovukelic.com>
 
-# Changelog
+### Changelog
 
  - **2014-03-17**: first draft
 
 ----------
 
-# Overview
+## Overview
 
 Outernet Content Selection and Discovery System (CSDS), a.k.a. Dream-catcher,
 is one of two key user-facing systems, the other being the Outernet client
@@ -31,89 +35,89 @@ CSDS can be roughly split into following major functional units:
  - Content selection subsystem
  - Content pool interface
 
-# Terms and definitions
+## Terms and definitions
 
 This section contains a short list of terms terms used in this document, and
 definitions of those terms.
 
-## Content
+### Content
 
 Content refers to Internet resource that can be read, viewed, watched, or
 heard, such as HTML pages, video and audio recordings, animation, documents,
 etc.
 
-## Processed content
+### Processed content
 
 Processed content is content prepared for broadcast.
 
-## End user
+### End user
 
 End user refers to a group of users that directly consume content broadcast by
 the Outernet network.
 
-## Contributor
+### Contributor
 
 Contributor is a user that does not necessarily directly consume the content
 broadcasts, but seeks to aid in selection, transcription, and other tasks that
 enable Outernet to prepare and broadcast the content.
 
-## (Outernet) community
+### (Outernet) community
 
 Collective name for end users and contributors.
 
-## (Content) request
+### (Content) request
 
 Sent to CSDS by the end users. It is (or should be) a description of content
 end user want to have broadcast on the network, rather than concrete items on
 the web.
 
-## Requester
+### Requester
 
 User making a content request.
 
-## Request type
+### Request type
 
 The type of the request medium. Broadly divided into transcribed and
 nontranscribed.
 
-## Request format
+### Request format
 
 The request subtype. Transcribed requests are always text, while
 non-transcribed can be image or audio (and other non-text formats).
 
-## Request content (request payload)
+### Request content (request payload)
 
 The content of the request (without any metadata).
 
-## Request content language
+### Request content language
 
 Language in which the request content is written.
 
-## Request(ed) language
+### Request(ed) language
 
 Language of the content being requested (as opposed to request content
 language).
 
-## Request topic
+### Request topic
 
 A topic for which the content is being requested (e.g., agriculture, maths,
 medicine, sports).
 
-## Request world
+### Request world
 
 There are two request worlds: online and offline. Requests coming from the
 Internet are considered online, while requests coming from non-Internet sources
 (phones, SMS, snail mail) are considered offline.
 
-## Transcribed (content) request (TR)
+### Transcribed (content) request (TR)
 
 Requests that were put in written form.
 
-## Nontranscribed (content) request (NTR)
+### Nontranscribed (content) request (NTR)
 
 Nontranscribed requests are request sent in format other than text.
 
-## Native request
+### Native request
 
 Request whose request content language is not English. The term is a bit
 misleading when speaking of end users whose native language *is* English, but
@@ -122,115 +126,115 @@ into English and those that don't, and because it's shorter than "non-English
 request". It should also not be confused with native content requests (see
 native content request).
 
-## Native content request (NCR)
+### Native content request (NCR)
 
 Request for content in native language of the requester.
 
-## (Request) source
+### (Request) source
 
 Channel through which request was sent.
 
-## Request hub (RH)
+### Request hub (RH)
 
 A component that processes each request regardless of the source.
 
-## Request (hub) adaptor (RA)
+### Request (hub) adaptor (RA)
 
 Software component that gathers or receives requests, and converts them to a
 format that RH can process. 
 
-## On-site RA
+### On-site RA
 
 RA that is built into the RH. These are usually components developed by
 Outernet staff, or contributed components that were accepted to run as part of
 the RH.
 
-## Third-party RA
+### Third-party RA
 
 RA that uses the RH's REST API to provide data. These are usually developed by
 third parties.
 
-## Trusted RA
+### Trusted RA
 
 A RA that is considered to provide reliable data.
 
-## Untrusted RA
+### Untrusted RA
 
 A RA that is not considered to provide reliable data. This is not only limited
 to unregistered third-party integrations, but also to sources that lack the
 capacity to provide verifiable information about requests.
 
-## Request processing
+### Request processing
 
 Process of adapting requests for further processing by human.
 
-## Clean requests
+### Clean requests
 
 Requests that are complete after processing.
 
-## (Edit) approval queue
+### (Edit) approval queue
 
 Requests edits waiting for approval by community members.
 
-## Request queue manager (RQM)
+### Request queue manager (RQM)
 
 Manages the request queue by providing sorted and prioritized lists, and
 removing obsolete information.
 
-## Content discovery
+### Content discovery
 
 Process of finding appropriate content for broadcast on Outernet.
 
-## Content discovery subsystem (CDS)
+### Content discovery subsystem (CDS)
 
 A component of the CSDS that facilitates content discovery.
 
-## Content selection
+### Content selection
 
 The process in which content that should be broadcast is selected from the pool
 of suggestions.
 
-## Content selection subsystem (CSS)
+### Content selection subsystem (CSS)
 
 Part of CSDS that facilitates content selection.
 
-## (Request) edits
+### (Request) edits
 
 Any of the proofing, transcription or translation activities performed on
 requests. Edits do not directly overwrite the original request, but are subject
 to approval by community members.
 
-## Approval score (APS)
+### Approval score (APS)
 
 Score that indicates the level of success in editing request metadata or
 content.
 
-## Acceptance score (ACS)
+### Acceptance score (ACS)
 
 Score that indicates the level of acceptance of submitted content.
 
-## Voting (power) score (VPS)
+### Voting (power) score (VPS)
 
 A score user is assigned based on various factors. Voting score determine the
 strength of a vote during content selection.
 
-## Content pool
+### Content pool
 
 Collection of content that are selected for the playlist.
 
-## Playlist
+### Playlist
 
 A selection of content that will be broadcast. This is a filtered list of
 content from the content pool. The filtering removes content that cannot be
 broadcast for any reason.
 
-# Figures
+## Figures
 
 ![Outernet CSDS flow chart](csds-ecr-fig1.png)
 
 **Fig1: Outernet CSDS**
 
-# Community membership
+## Community membership
 
 All users that would like to participate in the Outernet community are expected
 to register a user account. During registration, they provide the following
@@ -246,7 +250,7 @@ The provided data is used to match various tasks to their abilities and
 interests (for example, translation verification requests may only go to users
 that claim to know the source language).
 
-# Request hub interface
+## Request hub interface
 
 The requests come from a number of different sources. These may include
 Facebook USSD, Facebook 0, Mixit, as well as more conventional channels such as
@@ -255,7 +259,7 @@ the CSDS web application, SMS, and email.
 Requests can also be non-transcribed, transcribed, English-language or native
 (non-English).
 
-## Request adaptors
+### Request adaptors
 
 The RAs are components that represent the first contact with requests. They may
 be passive or active. Passive adaptors react to incoming communication.
@@ -287,7 +291,7 @@ information from requests, for example, or metadata in images and audio files.
 
 All RAs are divided into on-site and third-party adaptors. 
 
-### On-site adaptors
+#### On-site adaptors
 
 On-site RAs run as part of the RH and use the internal API directly. They use
 the same stack as the RH and possibly operate on the same server(s). This may
@@ -296,14 +300,14 @@ to the request database. It should be noted that on-site RAs are not
 necessarily developed by the Outernet project members. They may be contributed
 third parties.
 
-### Third-party adaptors
+#### Third-party adaptors
 
 Third-party RAs are developed by third parties and use the RH's REST API to
 send data. They are somewhat slower due to network latency, but are not
 restricted by the RH's stack requirements. They have no direct access to the RH
 database, but may obtain information through the REST API.
 
-## Request hub
+### Request hub
 
 The purpose of the request hub (RH) is to label and persist incoming requests.
 This allows rating, sorting, and display of requests to the users.
@@ -335,7 +339,7 @@ content.
 Finally, the content is decoded (if necessary), and persisted in the database
 along with the metadata.
 
-## Request queue manager
+### Request queue manager
 
 The main job of the request queue manager (RQM) is to provide prioritized and
 sorted lists of partial requests, and providing interfaces for editing them.
@@ -359,7 +363,7 @@ There is a fourth queue, the approval queue, which takes edited requests from
 the review queues and makes them available for approval by other community
 members.
 
-### Proofing queue
+#### Proofing queue
 
 The proofing queue contains reverse-chronological list of all requests that
 were flagged as incomplete or untrusted by the RH. Community members may review
@@ -367,26 +371,26 @@ the items and provide additional data about them or edit existing data. Such
 data may include topics and language of the requests. Community member can also
 mark the whole request for removal when proofing.
 
-### Transcription queue
+#### Transcription queue
 
 Transcription queue contains NTRs that needs the help from community in order
 to convert them into TRs. Requests that have language- and/or topic-related
 metadata that match the languages listed in user's profile will be highlighted.
 
-### Translation queue
+#### Translation queue
 
 Translation queues contain TRs that need to be translated into English. As with
 transcription queue, requests that have language- and/or topic-related metadata
 will be highlighted depending on user's profile information.
 
-### Approval queue
+#### Approval queue
 
 Requests that have been manually edited by the community are persisted in the
 approval database, and await approval or rejection by the community member. 
 
 All requests that have gone through the queues are marked as processed.
 
-### Request edit approvals
+#### Request edit approvals
 
 Any edits must be approved by other community members in order to be accepted
 into the main request queue. The requests pending approval are compiled into a
@@ -401,7 +405,7 @@ flag will be set accordingly on the original request after it is updated.
 Requests that are incomplete after the edits are made will show up in the
 review queues again.
 
-### Approval score
+#### Approval score
 
 Each community member has an editor score. The editor score increases by 1 for
 each approved edit, and is reduced by 1 for each rejected edit. As the approval
@@ -411,7 +415,7 @@ score below a certain threshold (TBD), the editor permanently loses the ability
 to edit. Editing capability may be restored by contacting the Outernet staff
 with an appropriate explanation of the situation.
 
-# Content discovery subsystem
+## Content discovery subsystem
 
 The content discovery subsystem (CDS) provides interfaces for suggesting
 content that should be broadcast through the Outernet network.
@@ -428,7 +432,7 @@ as web UIs and REST APIs.
 
 CDS will persist all incoming suggestions in a database.
 
-## Request queue interface
+### Request queue interface
 
 The request queue interface provides a sorted list of requests and means for
 users to provide content suggestions for each request in the queue.
@@ -445,13 +449,13 @@ The interface shows different requests to community members based on the topics
 listed under the members' accounts. Each list is personalized to the particular
 area of expertise of the user.
 
-## General suggestion interface
+### General suggestion interface
 
 The general suggestion interface can be used by community members (as well as
 end users) to provide suggestions for concrete content that may or may not have
 been requested by any of the end users.
 
-## Suggestion format
+### Suggestion format
 
 Suggestions may be single-page or multipage. Single-page content are just a
 single URL, whereas multipage may comprise of multiple URLs or a single URL
@@ -470,14 +474,14 @@ added:
  - primary subject (a list of topics may be provided)
  - tags
 
-## Supplementary information
+### Supplementary information
 
 The CDS may also try to fetch the suggested content to verify its availability,
 and determine the payload size, and anything else that may be relevant. Based
 on the information gathered at  this stage, CSD may mark or discard invalid
 content.
 
-# Content Selection Subsystem
+## Content Selection Subsystem
 
 The selection subsystem provides interfaces for community voting. All open
 suggestions that have not been broadcast, that are newer than a week become
@@ -487,7 +491,7 @@ Apart from simply stating whether content should or should not appear in the
 broadcast data, community members also provide suggestions for how long the
 content should be on air (method of selection TBD).
 
-## Voting and voting scores
+### Voting and voting scores
 
 Each community member starts with 10 votes. They can choose how to spend the
 votes. They may use all votes on a single piece of content, or may spread them
@@ -498,7 +502,7 @@ be used in future.
 Votes are cast every week, and content pool is updated on weekly basis. After
 each week, voting scores are reset to their base values.
 
-# Content pool interface
+## Content pool interface
 
 The content pool is a collection of content that may become part of the daily
 playlist. The pool is updated once a week based on the votes that were cast
