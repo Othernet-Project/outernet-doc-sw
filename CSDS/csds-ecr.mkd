@@ -1,0 +1,512 @@
+# Status
+
+Early community review
+
+# Authors
+
+ - Branko Vukelic (Monwara Digital Products) <branko@brankovukelic.com>
+
+# Changelog
+
+ - **2014-03-17**: first draft
+
+----------
+
+# Overview
+
+Outernet Content Selection and Discovery System (CSDS), a.k.a. Dream-catcher,
+is one of two key user-facing systems, the other being the Outernet client
+software. 
+
+On of the primary purposes of CSDS is handling requests for content. It
+collects requests for content from end users, and allows the community to
+suggest content based on such requests. CSDS interfaces with content packaging
+system (CPS) on the other end, providing a stream of content (content pool)
+based on suggestions and votes from community members.
+
+CSDS can be roughly split into following major functional units:
+
+ - Request hub interface
+ - Content discovery subsystem
+ - Content selection subsystem
+ - Content pool interface
+
+# Terms and definitions
+
+This section contains a short list of terms terms used in this document, and
+definitions of those terms.
+
+## Content
+
+Content refers to Internet resource that can be read, viewed, watched, or
+heard, such as HTML pages, video and audio recordings, animation, documents,
+etc.
+
+## Processed content
+
+Processed content is content prepared for broadcast.
+
+## End user
+
+End user refers to a group of users that directly consume content broadcast by
+the Outernet network.
+
+## Contributor
+
+Contributor is a user that does not necessarily directly consume the content
+broadcasts, but seeks to aid in selection, transcription, and other tasks that
+enable Outernet to prepare and broadcast the content.
+
+## (Outernet) community
+
+Collective name for end users and contributors.
+
+## (Content) request
+
+Sent to CSDS by the end users. It is (or should be) a description of content
+end user want to have broadcast on the network, rather than concrete items on
+the web.
+
+## Requester
+
+User making a content request.
+
+## Request type
+
+The type of the request medium. Broadly divided into transcribed and
+nontranscribed.
+
+## Request format
+
+The request subtype. Transcribed requests are always text, while
+non-transcribed can be image or audio (and other non-text formats).
+
+## Request content (request payload)
+
+The content of the request (without any metadata).
+
+## Request content language
+
+Language in which the request content is written.
+
+## Request(ed) language
+
+Language of the content being requested (as opposed to request content
+language).
+
+## Request topic
+
+A topic for which the content is being requested (e.g., agriculture, maths,
+medicine, sports).
+
+## Request world
+
+There are two request worlds: online and offline. Requests coming from the
+Internet are considered online, while requests coming from non-Internet sources
+(phones, SMS, snail mail) are considered offline.
+
+## Transcribed (content) request (TR)
+
+Requests that were put in written form.
+
+## Nontranscribed (content) request (NTR)
+
+Nontranscribed requests are request sent in format other than text.
+
+## Native request
+
+Request whose request content language is not English. The term is a bit
+misleading when speaking of end users whose native language *is* English, but
+we use this term to differentiate between requests that might need translation
+into English and those that don't, and because it's shorter than "non-English
+request". It should also not be confused with native content requests (see
+native content request).
+
+## Native content request (NCR)
+
+Request for content in native language of the requester.
+
+## (Request) source
+
+Channel through which request was sent.
+
+## Request hub (RH)
+
+A component that processes each request regardless of the source.
+
+## Request (hub) adaptor (RA)
+
+Software component that gathers or receives requests, and converts them to a
+format that RH can process. 
+
+## On-site RA
+
+RA that is built into the RH. These are usually components developed by
+Outernet staff, or contributed components that were accepted to run as part of
+the RH.
+
+## Third-party RA
+
+RA that uses the RH's REST API to provide data. These are usually developed by
+third parties.
+
+## Trusted RA
+
+A RA that is considered to provide reliable data.
+
+## Untrusted RA
+
+A RA that is not considered to provide reliable data. This is not only limited
+to unregistered third-party integrations, but also to sources that lack the
+capacity to provide verifiable information about requests.
+
+## Request processing
+
+Process of adapting requests for further processing by human.
+
+## Clean requests
+
+Requests that are complete after processing.
+
+## (Edit) approval queue
+
+Requests edits waiting for approval by community members.
+
+## Request queue manager (RQM)
+
+Manages the request queue by providing sorted and prioritized lists, and
+removing obsolete information.
+
+## Content discovery
+
+Process of finding appropriate content for broadcast on Outernet.
+
+## Content discovery subsystem (CDS)
+
+A component of the CSDS that facilitates content discovery.
+
+## Content selection
+
+The process in which content that should be broadcast is selected from the pool
+of suggestions.
+
+## Content selection subsystem (CSS)
+
+Part of CSDS that facilitates content selection.
+
+## (Request) edits
+
+Any of the proofing, transcription or translation activities performed on
+requests. Edits do not directly overwrite the original request, but are subject
+to approval by community members.
+
+## Approval score (APS)
+
+Score that indicates the level of success in editing request metadata or
+content.
+
+## Acceptance score (ACS)
+
+Score that indicates the level of acceptance of submitted content.
+
+## Voting (power) score (VPS)
+
+A score user is assigned based on various factors. Voting score determine the
+strength of a vote during content selection.
+
+## Content pool
+
+Collection of content that are selected for the playlist.
+
+## Playlist
+
+A selection of content that will be broadcast. This is a filtered list of
+content from the content pool. The filtering removes content that cannot be
+broadcast for any reason.
+
+# Figures
+
+![Outernet CSDS flow chart](csds-ecr-fig1.png)
+
+**Fig1: Outernet CSDS**
+
+# Community membership
+
+All users that would like to participate in the Outernet community are expected
+to register a user account. During registration, they provide the following
+information:
+
+ - email address
+ - full name
+ - country
+ - languages they can read and write (with proficiency level? TBD)
+ - topics that interest them (selected from a predefined list, TBD)
+
+The provided data is used to match various tasks to their abilities and
+interests (for example, translation verification requests may only go to users
+that claim to know the source language).
+
+# Request hub interface
+
+The requests come from a number of different sources. These may include
+Facebook USSD, Facebook 0, Mixit, as well as more conventional channels such as
+the CSDS web application, SMS, and email.
+
+Requests can also be non-transcribed, transcribed, English-language or native
+(non-English).
+
+## Request adaptors
+
+The RAs are components that represent the first contact with requests. They may
+be passive or active. Passive adaptors react to incoming communication.
+Examples are SMS adaptors or voice inbox adaptors. Active adaptors seek out
+requests on the channel they are assigned to performing data mining and similar
+operations on the source. Examples of the latter may include Facebook or
+Twitter adaptors.
+
+While each adaptor has a different implementation suited to its particular
+source, it will communicate with the RH using the common RH API.
+
+Each RA will need to provide the RH the following information:
+
+ - Time request was made
+ - Location information (country) made available by the source
+ - Request world (online, offline)
+ - Request format (text, image, video)
+ - Request language
+ - Requested content language
+ - Request topics
+ - Request content
+
+The request content may either be Unicode text (UTF-8) or base64-encoded binary
+data.
+
+RAs generally do not modify the request content except for removal of
+unnecessary metadata depending on the source. RAs may strip personal
+information from requests, for example, or metadata in images and audio files.
+
+All RAs are divided into on-site and third-party adaptors. 
+
+### On-site adaptors
+
+On-site RAs run as part of the RH and use the internal API directly. They use
+the same stack as the RH and possibly operate on the same server(s). This may
+provide better performance due to the lack of network latency and direct access
+to the request database. It should be noted that on-site RAs are not
+necessarily developed by the Outernet project members. They may be contributed
+third parties.
+
+### Third-party adaptors
+
+Third-party RAs are developed by third parties and use the RH's REST API to
+send data. They are somewhat slower due to network latency, but are not
+restricted by the RH's stack requirements. They have no direct access to the RH
+database, but may obtain information through the REST API.
+
+## Request hub
+
+The purpose of the request hub (RH) is to label and persist incoming requests.
+This allows rating, sorting, and display of requests to the users.
+
+RH provides a public REST API to all RAs.
+
+Because the RAs are expected to provide unverifiable but important information,
+RH makes a distinction between trusted and untrusted RAs. Each request gets
+flagged accordingly. The decision to trust an RA should be based on the quality
+of its implementation as well as the data it sends, and the community will
+participate in the decision (but the actual workflow is still TBD).
+
+RH will also filter out any requests that are duplicates, possibly augmenting
+existing requests with additional metadata.
+
+Complete requests are flagged appropriately.
+
+Regardless of whether requests come from trusted or untrusted sources, the RH's
+job is to thoroughly clean any incoming data if needed. (We'll probably know
+more about this requirement when we start detailing the RAs implementations).
+
+The next step in request processing is to split incoming requests into two main
+buckets: transcribed and nontranscribed. This is done based on the information
+provided by the RA. The request is also tagged with data about the format.
+
+Request are then tagged for language of the request and language of the request
+content. 
+
+Finally, the content is decoded (if necessary), and persisted in the database
+along with the metadata.
+
+## Request queue manager
+
+The main job of the request queue manager (RQM) is to provide prioritized and
+sorted lists of partial requests, and providing interfaces for editing them.
+RQM's secondary, non-essential, purpose is cleanup of obsolete requests on
+daily basis.
+
+In order to compile the queues, RQM will employ different algorithms for
+sorting them.
+
+The RQM is used by the web interface and API clients to obtain sorted lists of
+requests. The RQM provides three review queues:
+
+ - proofing queue
+ - transcription queue
+ - translation queue
+
+Activities performed on requests in any of the three review queues are
+collectively called request edits (or just edits).
+
+There is a fourth queue, the approval queue, which takes edited requests from
+the review queues and makes them available for approval by other community
+members.
+
+### Proofing queue
+
+The proofing queue contains reverse-chronological list of all requests that
+were flagged as incomplete or untrusted by the RH. Community members may review
+the items and provide additional data about them or edit existing data. Such
+data may include topics and language of the requests. Community member can also
+mark the whole request for removal when proofing.
+
+### Transcription queue
+
+Transcription queue contains NTRs that needs the help from community in order
+to convert them into TRs. Requests that have language- and/or topic-related
+metadata that match the languages listed in user's profile will be highlighted.
+
+### Translation queue
+
+Translation queues contain TRs that need to be translated into English. As with
+transcription queue, requests that have language- and/or topic-related metadata
+will be highlighted depending on user's profile information.
+
+### Approval queue
+
+Requests that have been manually edited by the community are persisted in the
+approval database, and await approval or rejection by the community member. 
+
+All requests that have gone through the queues are marked as processed.
+
+### Request edit approvals
+
+Any edits must be approved by other community members in order to be accepted
+into the main request queue. The requests pending approval are compiled into a
+separate queue by the RQM and are made available to the community members for
+review.
+
+There are two possible actions: approve and reject. By default three unique
+approvals or rejections are required for the edits to be accepted or rejected.
+
+Approved edits will also be reviewed by RQM for completeness, and the complete
+flag will be set accordingly on the original request after it is updated.
+Requests that are incomplete after the edits are made will show up in the
+review queues again.
+
+### Approval score
+
+Each community member has an editor score. The editor score increases by 1 for
+each approved edit, and is reduced by 1 for each rejected edit. As the approval
+score of the editor grows, they will require less votes for approval, and
+negative approval score requires less votes for rejections. With a rejection
+score below a certain threshold (TBD), the editor permanently loses the ability
+to edit. Editing capability may be restored by contacting the Outernet staff
+with an appropriate explanation of the situation.
+
+# Content discovery subsystem
+
+The content discovery subsystem (CDS) provides interfaces for suggesting
+content that should be broadcast through the Outernet network.
+
+The suggestions are divided into two main categories:
+
+ - suggestions for requested content
+ - general suggestions
+
+The request queue interface allows users to review requests and suggest
+appropriate content. The general suggestion interface allows users to submit
+content regardless of the requests in the queue. Both interfaces are provided
+as web UIs and REST APIs.
+
+CDS will persist all incoming suggestions in a database.
+
+## Request queue interface
+
+The request queue interface provides a sorted list of requests and means for
+users to provide content suggestions for each request in the queue.
+
+Requests are prioritized based on metadata provided by the RH and community
+members through RQM. The factors that might influence the sorting order are (in
+no particular order, and still TBD):
+
+ - timestamp of the request
+ - locale (language and/or location)
+ - type of source and/or RA
+
+The interface shows different requests to community members based on the topics
+listed under the members' accounts. Each list is personalized to the particular
+area of expertise of the user.
+
+## General suggestion interface
+
+The general suggestion interface can be used by community members (as well as
+end users) to provide suggestions for concrete content that may or may not have
+been requested by any of the end users.
+
+## Suggestion format
+
+Suggestions may be single-page or multipage. Single-page content are just a
+single URL, whereas multipage may comprise of multiple URLs or a single URL
+with crawl depth. The term 'page' is used loosely here to refer to both textual
+and non-textual content (images, audio, video).
+
+Each suggestion provides at least the following data:
+
+ - URL(s) of the content
+ - type of content (single-page, multi-page)
+ - crawl depth
+
+To help community with content selection, following information may also be
+added:
+
+ - primary subject (a list of topics may be provided)
+ - tags
+
+## Supplementary information
+
+The CDS may also try to fetch the suggested content to verify its availability,
+and determine the payload size, and anything else that may be relevant. Based
+on the information gathered at  this stage, CSD may mark or discard invalid
+content.
+
+# Content Selection Subsystem
+
+The selection subsystem provides interfaces for community voting. All open
+suggestions that have not been broadcast, that are newer than a week become
+candidates for voting.
+
+Apart from simply stating whether content should or should not appear in the
+broadcast data, community members also provide suggestions for how long the
+content should be on air (method of selection TBD).
+
+## Voting and voting scores
+
+Each community member starts with 10 votes. They can choose how to spend the
+votes. They may use all votes on a single piece of content, or may spread them
+across multiple pieces. For each piece of content user voted for, which is
+subsequently broadcast, they are permanently awarded 1 additional vote that can
+be used in future.
+
+Votes are cast every week, and content pool is updated on weekly basis. After
+each week, voting scores are reset to their base values.
+
+# Content pool interface
+
+The content pool is a collection of content that may become part of the daily
+playlist. The pool is updated once a week based on the votes that were cast
+during the previous week. 
+
+Selection of broadcast content from the content pool is done semi-automatically
+by the Playlist creation system which is not part of CSDS. The content pool
+interface simply lists all available content.
+
+
+  [1]: http://en.wikipedia.org/wiki/Benevolent_Dictator_for_Life
