@@ -1,0 +1,426 @@
+# [ECR] CSDS Request Hub Subsystem (RH)
+
+## About this document
+
+### Status
+
+Early community review
+
+### Authors
+
+ - Branko Vukelic (Monwara Digital Products) <branko@brankovukelic.com>
+
+### Changelog
+
+ - **2014-03-19**: first draft
+
+----------
+
+## Overview
+
+Request hub (RH) is a funnel that collects requests from various sources,
+ensures they are in correct format and persists them in the rquest database. RH 
+itself has no user-facing interfaces. It provides local and remote APIs for
+software that sends the requests (called Request adaptor, RA).
+
+## Terms and definitions
+
+### Request adaptor (RA)
+
+Software that sends requests to the request hub using the hub's API.
+
+### Local adaptor (on-site adaptor)
+
+RA that is located on the same server as the RH, and is able to use the Python
+API directly, as well as access the request database.
+
+### Remote adaptor (third-party adaptor)
+
+RA that is located off-site, usign the remote REST API to communicate with the
+RH. It has no access to the request database.
+
+### (Content) request
+
+Sent to CSDS by the end users. It is (or should be) a description of content
+end user want to have broadcast on the network, rather than concrete items on
+the web.
+
+### Request world
+
+There are two request worlds: online and offline. Requests coming from the
+Internet are considered online, while requests coming from non-Internet sources
+(phones, SMS, snail mail) are considered offline.
+
+### Request topic
+
+A topic for which the content is being requested (e.g., agriculture, maths,
+medicine, sports).
+
+### Request content language
+
+Language in which the request content is written.
+
+### Request(ed) language
+
+Language of the content being requested (as opposed to request content
+language).
+
+### Requester
+
+User making a content request.
+
+### (Request) source
+
+Source of the request (e.g., SMS, Facebook USSD, snail mail).
+
+### Request type
+
+The type of the request medium. Broadly divided into transcribed and
+nontranscribed.
+
+### Transcribed request
+
+Request that has been converted to UTF-8 plain-text.
+
+### Nontranscribed request
+
+Request in any format other than UTF-8 plain-text.
+
+### Request format
+
+The request subtype. Transcribed requests are always text, while
+non-transcribed can be image or audio (and other non-text formats).
+
+### Request content (request payload)
+
+The content of the request (without any metadata).
+
+## Adaptor registration
+
+In order to use the remote API, each adaptor must obtain an API key.
+Registration is done by sending a request to the staff via email. Users may
+operate more than one adaptor, but each one must have a unique key.
+
+All requests must contain the API key as one of the components and the key is
+used to identify the adaptor.
+
+## Remote and local adaptors
+
+There are two types of adaptors. 
+
+Local adaptors must use the request hub's Python API in order to add new
+requests to database. They should be hosted on the same server as the hub
+itself, as part of the CSDS deployment. Local adaptors should not use the API
+key when providing request data.
+
+Remote adaptors must use the REST API provided by the hub to add new requests.
+They should be hosted off-site and should not have direct access to the request
+database. Remote adaptors must present the API key when making API requests.
+
+## Request interface
+
+Requests are sent to a request interface. The request **must** contain:
+
+ - request timestamp in UTC
+ - request world
+ - request type
+ - request format
+ - request content (payload)
+
+Request **may** provide the following information:
+
+ - API key
+ - request language
+ - request content language
+ - request topic
+ - requester location (country)
+
+### Request interface parameters
+
+This section provides more details about the request data parameters expected
+by the request interface.
+
+#### Request timestamp
+
+**name:** ``timestamp``
+
+Each request must be timestamped. This timestamp should match the time in UTC
+when the request was created by the requester. In case this time is unknown, it
+must be a time in UTC when request was extracted from the source by the
+adaptor.
+
+#### Request world
+
+**name:** ``world``
+
+This parameter is an integer which is 1 for online, and 0 for offline sources.
+The definition of online and offline are loose and meant to denote sources that
+do or do not require any kind of Internet connection (respectively). This
+parameter is mainly used to determine whether the requester can normally access
+Internet, so please set it accordingly.
+
+#### Request type
+
+**name:** ``type``
+
+This parameter is an integer which is 1 for transcribed (written) and 0 for all
+other requests. A transcribed request is one that has been converted to UTF-8
+text. RA is expected to perform necessary transformations to the text. All
+non-text requests are considered nontrascribed, binary data.
+
+#### Request format
+
+**name:** ``format``
+
+This describes the medium of the content. This version of the spec will support
+the following formats:
+
+ - text (plain-text, encoded UTF-8)
+ - image/png (binary image data, PNG format)
+ - image/jpg (binary image data, JPEG format)
+ - image/gif (binary image data, GIF format)
+
+More formats will be added in time.
+
+#### Request content (payload)
+
+**name**: ``content``
+
+This is the actual body of the request. 
+
+If the request is transcribed, the content of this parameter must be the text 
+of the request encoded in UTF-8.
+
+If the request is nontranscribed, the content must be Base64-encoded binary
+data. Base64 encoding must be done according to [RFC
+3548](http://tools.ietf.org/html/rfc3548.html), and the standard alphabet which
+maps values 62 and 63 to '+' (plus) and '/' (slash) respectively (see [page
+5](http://tools.ietf.org/html/rfc3548.html#page-5) of the RFC).
+
+#### API key
+
+**name**: ``key``
+
+API key is a unique key identifying the adaptor that made the request. It is
+required when making request over remote API.
+
+#### Request language (optional)
+
+**name**: ``lang``
+
+The desired language of the content being requested.
+
+The request language is a locale code as defined by [RFC
+5646](http://tools.ietf.org/html/rfc5646). The locale code should be as
+general as possible, but this parameter is optional, and RAs may completely
+omit it if there is no reliable data in the request. It should not be assume
+that the request language is the same as request content language.
+
+#### Request content language (optional)
+
+**name**: ``clang``
+
+The language in which the request was made.
+
+The request content language should be a locale code as defined by [RFC
+5646](http://tools.ietf.org/html/rfc5646). The locale code should be as
+specific as possible, but this parameter is optional, and RAs may completely
+omit it if there is no reliable data in the request. It should not assume that
+the request content language is the same as request language.
+
+#### Request topic (optional)
+
+**name**: ``topic``
+
+Topic of the request. The value must be one of the following:
+
+ - agriculture
+ - arts
+ - business
+ - computers
+ - economy
+ - education
+ - health
+ - home
+ - kids
+ - nature
+ - news
+ - society
+ - sports
+ - sports
+ - technology
+
+The list is still not finalized. A single subtopic may be provided by adding a
+slash between the topic and subtopic. For instance: 'arts/literature' Spaces
+may be used in subtopics, but not around the slash. Subtopics must be in
+English.
+
+This parameter is optional, and may be omitted. RAs should not try to guess the
+topic if there is no reliable data in the request.
+
+#### Requester location (optional)
+
+**name**: ``location``
+
+This parameter is a two-letter country code of the requester, as defined by 
+[ISO 3166-1 alpha-2](http://www.iso.org/iso/country_codes.htm). It is optional
+and RAs should not try to guess the location if there is no reliable data in
+the request (IP addresses and phone numbers may be considered reliable).
+
+### Remote (REST) API
+
+The create a new request, a POST request is made at ``/rh/requests`` endpoint.
+
+The request body should be form-encoded and should contain the request data 
+parameters as discussed in the previous sections. The timestamp should be in
+ISO format: 
+
+    YYYY-MM-DDThh:mm:ssZ
+
+In the time portion of the timestamp, any unknown component (hours, minutes,
+seconds) may be set to '00'.
+
+Example:
+
+    key=foobarbaz&word=0&type=1&format=text&timestamp=20140412T12:33:42Z&\
+    content=RICE+PRODUCTION+IN+ARID+CLIMATE
+
+The RH remote API may accept JSON-encoded requests if the request's
+``content-type`` header is ``application/json``.
+
+#### Response codes
+
+One of the following response codes must be returned by the endpoint:
+
+ - 200: Request has been accepted
+ - 400: Invalid data (required fields were not present in the request or the
+   fields were in incorrect format)
+ - 403: Invalid API key
+ - 405: Wrong HTTP method
+ - 500: Server error
+
+In case of the 400 status code, the request body must be a JSON-encoded object
+that maps the parameter name to the description of the errors. The errors may
+be:
+
+ - missing (parameter is missing even though it is required)
+ - wrong (parameter is present but its format is incorrect)
+ - malformed (for content field, the text or image could not be decoded)
+ - error (perameter is present but the cause of the erorr could not be
+   determined)
+
+### Local (Python) API
+
+A local Python API is provided for local adaptors. The API is intended to
+simplify working with the request database.
+
+#### ``Request`` objects
+
+The ``Request`` class provides means for checking and persisting requests.
+
+##### *class* ``Request(content, timestamp, world, type, format, [lang, clang, topic, location])``
+
+The ``Request`` class is used to create new request objects. It takes the all
+request data parameters as constructor arguments.
+
+For example:
+
+    import datetime
+    from rh.requests import Request
+    
+    r = Request(
+        'RICE PRODUCTION IN ARID CLIMATE',
+        datetime.datetime(2014, 4, 12, 12, 33, 42),
+        Request.ONLINE,
+        Request.TRANSCRIBED,
+        'text'
+    )
+
+##### ``Request.check()``
+
+Checks the request for any problems. Exceptions are raised if any issues are
+discovered.
+
+##### ``Request.persist()``
+
+Each request is persisted using the ``persist()`` instance method.
+
+    r.persist()
+
+#### Exceptions
+
+The format of all parameters must be checked before the request can be
+persisted. If any of the parameters are not formatted correctly,
+``BadParameterError`` exception is raised. The parameters with errors can be
+accessed using the ``params`` property, which is a dictionary mapping parameter
+names to errors for each parameter. The errors are strings and can be:
+
+ - missing (parameter is missing even though it is required)
+ - wrong (parameter is present but its format is incorrect)
+ - malformed (for content field, the text or image could not be decoded)
+ - error (perameter is present but the cause of the erorr could not be
+   determined)
+
+The request hub must check for duplicate requests, and a call to ``perisist()``
+may raise a ``DuplicateRequestError``. 
+
+If the request cannot be persisted for any other reason, a ``SystemError``
+exception is raised. This should be considered a fatal error (e.g., database
+connection failure), may be left unhandled by caller.
+
+It is recommended that the call to ``check()`` be wrapped in a ``try``
+``except`` block:
+
+    from rh.exceptions import BadParameterError, DuplicateRequestError
+
+    try:
+        r.check()
+
+    except BadParameterError, err:
+        # Handle wrong parameters
+        for param, error in err.params.items():
+            # Do something with parameter name and error code
+
+    except DuplicateRequestError:
+        # Handle the case where duplicate is found or just
+        pass
+
+All exceptions must also be available as attributes on the Request class.
+
+#### ``Adaptor`` objects
+
+Each adaptor should implement the adaptor interface defined by the ``Adaptor``
+class.
+
+#### *class* ``Adaptor()``
+
+The ``Adaptor`` class encapsulates the adaptor API. The ``Adaptor`` objects 
+are used by the RH to trigger request parsing or obtaining new requests.
+
+Each adaptor should subclass the ``Adaptor`` class and implement the required
+methods.
+
+##### ``Adaptor.frequency``
+
+RH runs a cron task each hour. The frequency determines how many hours should
+pass between two calls to the adaptor's ``get_request()`` method. It must be an
+integer between 1 and 24. The adaptor is activated once each hour if the value
+is set to 1, and once a day if this value is set to 24.
+
+##### ``Adaptor.get_requests()``
+
+This methid is called by RH with no arguments to get requests for the given
+adaptor. The adaptor may collect requests at any time but must return them when
+this method is called. The return value should be an iterable containing
+Request objects. The adaptor should not call the ``persist()`` method on the
+request objects.
+
+##### ``Adaptor.bad_request(request, error)``
+
+For each request that fails the integrity check, the ``bad_request()`` method
+is called. This method must accept the request object as first argument, and an
+error object as second positional argument.
+
+Adaptor may do anything with the data, and caller should not expect any return
+value.
+
